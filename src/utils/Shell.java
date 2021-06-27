@@ -81,6 +81,31 @@ public class Shell
 		stdout.clear();
 		stderr.clear();
 		Process process = exec(command, "");
+		exitCode = waitProcess(process);
+
+		if (exitCode == 0)
+		{
+			saveStdout(process);
+			success = true;
+		} else
+		{
+			success = false;
+			saveStderr(process);
+			if (panicOnError)
+			{
+				System.out.println("!Error while executing [" + command + "]!");
+				System.out.println("!The program will abort after showing stderr!");
+				printStderr();
+				System.exit(1);
+			}
+		}
+	}
+	
+	public void smartExec_consume(String command)
+	{
+		stdout.clear();
+		stderr.clear();
+		Process process = exec(command, "");
 		saveStdout(process);
 		exitCode = waitProcess(process);
 
