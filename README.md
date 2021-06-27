@@ -20,6 +20,8 @@ The install location of this dependencies must be announced to the library. This
 
 # API
 
+The API is exposed in the class `DASCIIvinci`.
+
 - ```Java
   public String generateString(File inputImage);
   ```
