@@ -28,25 +28,24 @@ public class DASCIIvinci
 
 	public String generateString(File inputImage)
 	{
-		shell.smartExec("python " + pythonScript.getAbsolutePath() + " " + inputImage.getAbsolutePath());
+		shell.smartExec_consume("python " + pythonScript.getAbsolutePath() + " " + inputImage.getAbsolutePath());
 		return ParseUtils.linkedStringsToString(shell.stdout, false);
 	}
 
 	public void generateImage(File inputImage, File outputImage)
 	{
-		shell.smartExec("python " + pythonScript.getAbsolutePath() + " " + inputImage.getAbsolutePath());
-		shell.smartExec(wkhtmltoimageExecutable.getAbsolutePath() + " --width 0 " + generateHTMLTemplate(shell.stdout).getAbsolutePath() + " " + outputImage.getAbsolutePath());
-		FileUtils.cleanDir(tempDir);
+		shell.smartExec_consume("python " + pythonScript.getAbsolutePath() + " " + inputImage.getAbsolutePath());
+		shell.smartExec_consume(wkhtmltoimageExecutable.getAbsolutePath() + " --width 0 " + generateHTMLTemplate(shell.stdout).getAbsolutePath() + " " + outputImage.getAbsolutePath());
 	}
 
 	public void generateGIF(File inputDir, String pattern, File outputGIF)
 	{
-		shell.smartExec(ffmpegExecutable.getAbsolutePath() + " -f image2 -i " + inputDir.getAbsolutePath() + "\\" + pattern + " " + outputGIF.getAbsolutePath());
+		shell.smartExec(ffmpegExecutable.getAbsolutePath() + " -loglevel quiet -nostdin -y -f image2 -i " + inputDir.getAbsolutePath() + "\\" + pattern + " " + outputGIF.getAbsolutePath());
 	}
 
 	public void breakVideoIntoImages(File inputVideo, int fps, File outputDir, String pattern)
 	{
-		shell.smartExec(ffmpegExecutable.getAbsolutePath() + " -i " + inputVideo.getAbsolutePath() + " -vf fps=" + fps + " " + outputDir.getAbsolutePath() + "\\" + pattern);
+		shell.smartExec(ffmpegExecutable.getAbsolutePath() + " -loglevel quiet -nostdin -y -i " + inputVideo.getAbsolutePath() + " -vf fps=" + fps + " " + outputDir.getAbsolutePath() + "\\" + pattern);
 	}
 
 	private File generateHTMLTemplate(LinkedList<String> rawLines)
@@ -57,7 +56,7 @@ public class DASCIIvinci
 		content += ("<body>") + '\n';
 		content += ("<p style=\"font-family:Lucida Console;font-size:10px; color:#FFFFFF; background-color:#000000;text-align:center;\">") + '\n';
 		for (String currentline : rawLines)
-			content += "<nobr>" + currentline + "</nobr><br>\n";
+			content += "<nobr>" + currentline.replace(" ", "&nbsp;") + "</nobr><br>\n";
 		content += ("</p>") + '\n';
 		content += ("</body>") + '\n';
 		content += ("</html>") + '\n';
@@ -65,5 +64,10 @@ public class DASCIIvinci
 		File result = FileUtils.createTempFile(tempDir, "tmp", ".html");
 		FileUtils.writeStringToFile(result, content);
 		return result;
+	}
+
+	public void cleanTempDir()
+	{
+		FileUtils.cleanDir(tempDir);
 	}
 }
